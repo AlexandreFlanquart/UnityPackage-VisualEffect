@@ -1,0 +1,23 @@
+{
+  "name": "com.myunitypackage.visualeffect",
+  "version": "1.0.0",
+  "displayName": "UnityPackage-VisualEffect",
+  "description": "UnityPackage VisualEffect show multiple type of visual effects.",
+  "unity": "6000.0",
+  "dependencies": {},
+  "author": {
+    "name": "Alexandre Flanquart"
+  },
+  "contributors": [
+    {
+      "name": "Victor Simon"
+    }
+  ],
+  "samples": [
+    {
+      "displayName": "SampleScene",
+      "description": "Example usage",
+      "path": "Samples~"
+    }
+  ]
+}
