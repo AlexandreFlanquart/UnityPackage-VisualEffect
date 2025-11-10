@@ -1,7 +1,9 @@
 {
     "name": "MyUnityPackage.VisualEffect",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "GUID:b54b67bb94f21ea4aa2feee402050eb2"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
