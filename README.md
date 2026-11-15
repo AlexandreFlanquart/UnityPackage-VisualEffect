@@ -8,6 +8,7 @@ Polish toolkit for Unity: lightweight visual effects for 3D objects, 2D objects 
 |-------------|-------|
 | Unity 6000.0+ | Uses `Awaitable` |
 | MyUnityPackage Toolkit | Required. Provides `MUPLogger`, referenced by the Core assembly. Install it before this package. |
+| URP (`com.unity.render-pipelines.universal`) | Required by the shipped shader. Declared as a dependency. |
 | DOTween | Optional. Only needed for the DOTween module (see below). |
 
 ## Install
@@ -37,12 +38,19 @@ All types live in the `MyUnityPackage.VisualEffect` namespace. Components are un
 | `ShakeEffect` | One-shot random shake that fades out |
 | `SquashStretchEffect` | Volume-preserving squash and stretch that oscillates back to rest |
 | `CanvasGroupFadeEffect` | Fades a `CanvasGroup` alpha, optionally controlling interactivity |
+| `MaterialFloatEffect` | Animates any float shader property (by reference name) on one or several renderers |
+| `HitFlashEffect` | `MaterialFloatEffect` preset: damage flash (`_FlashAmount` 1 to 0) |
+| `DissolveEffect` | `MaterialFloatEffect` preset: dissolve out (`_DissolveAmount` 0 to 1) |
 
 `FloatObject` and `LinearMoveObject` apply their movement as an additive offset: they can be stacked, and combined with gameplay code that moves the same Transform.
 
 All effects share the `IVisualEffect` contract (`Play`, `Stop`, `IsPlaying`, `Duration`) and the playback options of `VisualEffectBehaviour` (delay, loops, yoyo, unscaled time, `OnComplete`). They are additive and can be stacked on the same Transform. When an effect is selected, the Inspector shows **Play** / **Stop** buttons that preview it, in Edit Mode too (the object is restored when the preview ends). See [Docs/Effects.md](Docs/Effects.md).
 
 UI transitions (`TransitionSO`, `UIManager`) are documented in [Docs/UISystem.md](Docs/UISystem.md).
+
+### Shaders
+
+The package ships one URP shader, `MyUnityPackage/Visual Effect/Sprite Effects` (hit flash and dissolve), for `SpriteRenderer` only. [Docs/Shaders.md](Docs/Shaders.md) is a step-by-step Shader Graph tutorial (in French) that explains how to drive shaders with `MaterialFloatEffect` and build your own effects.
 
 ### UGUI module (`MyUnityPackage.VisualEffect.UGUI`)
 

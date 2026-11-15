@@ -40,6 +40,11 @@ Classe de base : elle gère la lecture, les sous-classes décrivent seulement l'
 | `ShakeEffect` | Secousse aléatoire qui s'estompe (dégâts, explosion) |
 | `SquashStretchEffect` | Écrasement / étirement à volume constant (atterrissage, rebond) |
 | `CanvasGroupFadeEffect` | Fondu de l'alpha d'un `CanvasGroup`, avec gestion de l'interactivité |
+| `MaterialFloatEffect` | Anime une propriété float de shader (par son Reference name) sur un ou plusieurs `Renderer` |
+| `HitFlashEffect` | Preset de `MaterialFloatEffect` : flash de dégât (`_FlashAmount` de 1 à 0) |
+| `DissolveEffect` | Preset de `MaterialFloatEffect` : dissolution (`_DissolveAmount` de 0 à 1) |
+
+Les trois effets matériau nécessitent un shader exposant la propriété visée : voir [Shaders.md](Shaders.md).
 
 Les effets de transformation (`Position`, `Rotation`, `Scale`) ont une cible optionnelle (`Target`, par défaut l'objet lui-même). Pour la valeur `Scale`, les valeurs sont une **fraction** de l'échelle de repos : `0.2` = +20 %, `-1` = échelle nulle.
 

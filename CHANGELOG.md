@@ -16,6 +16,10 @@
 - UGUI module with `UIButtonFeedback` (hover / pressed scale feedback, optional click effect); new dependency on `com.unity.ugui`.
 - Editor module: Play / Stop preview buttons on every effect Inspector, usable in Edit Mode.
 - `Docs/Effects.md`.
+- `MaterialFloatEffect` with `HitFlashEffect` and `DissolveEffect` presets.
+- `Sprite Effects` URP shader (hit flash and dissolve).
+- `Docs/Shaders.md`: shader and Shader Graph tutorial.
+- New dependency on `com.unity.render-pipelines.universal`.
 - `CustomFadeTransitionSO`: `mode` (out then in, in, out) and `useUnscaledTime`.
 - `AnimationTransitionSO`: configurable state name.
 - `UIManager.PlayTransitionByNameAsync`, to await the end of a transition.
