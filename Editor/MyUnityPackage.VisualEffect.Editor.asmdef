@@ -1,0 +1,18 @@
+{
+    "name": "MyUnityPackage.VisualEffect.Editor",
+    "rootNamespace": "MyUnityPackage.VisualEffect.Editor",
+    "references": [
+        "MyUnityPackage.VisualEffect"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

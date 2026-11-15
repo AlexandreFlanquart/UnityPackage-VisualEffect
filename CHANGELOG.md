@@ -11,6 +11,11 @@
 - Transition assets moved to the `MyUnityPackage/Visual Effect/Transitions` create menu.
 
 ### Added
+- Effect contract: `IVisualEffect` and `VisualEffectBehaviour` (delay, loops, yoyo, unscaled time, `OnComplete`), `Ease` / `EaseSetting`, additive `TransformOffset`, and `PunchEffect`.
+- `PulseEffect`, `ScaleEffect`, `ShakeEffect`, `SquashStretchEffect` and `CanvasGroupFadeEffect`.
+- UGUI module with `UIButtonFeedback` (hover / pressed scale feedback, optional click effect); new dependency on `com.unity.ugui`.
+- Editor module: Play / Stop preview buttons on every effect Inspector, usable in Edit Mode.
+- `Docs/Effects.md`.
 - `CustomFadeTransitionSO`: `mode` (out then in, in, out) and `useUnscaledTime`.
 - `AnimationTransitionSO`: configurable state name.
 - `UIManager.PlayTransitionByNameAsync`, to await the end of a transition.

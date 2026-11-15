@@ -31,10 +31,26 @@ All types live in the `MyUnityPackage.VisualEffect` namespace. Components are un
 | `FloatObject` | Idle pickup animation: floats along an axis with amplitude noise, optional spin |
 | `LinearMoveObject` | Sine back-and-forth movement along an axis |
 | `RotateObject` | Continuous rotation with optional speed noise |
+| `PunchEffect` | One-shot impact (position, rotation or scale) that oscillates back to rest |
+| `PulseEffect` | Continuous sine oscillation (breathing, blinking) |
+| `ScaleEffect` | Scales between two multipliers of the rest scale (pop in / pop out) |
+| `ShakeEffect` | One-shot random shake that fades out |
+| `SquashStretchEffect` | Volume-preserving squash and stretch that oscillates back to rest |
+| `CanvasGroupFadeEffect` | Fades a `CanvasGroup` alpha, optionally controlling interactivity |
 
 `FloatObject` and `LinearMoveObject` apply their movement as an additive offset: they can be stacked, and combined with gameplay code that moves the same Transform.
 
+All effects share the `IVisualEffect` contract (`Play`, `Stop`, `IsPlaying`, `Duration`) and the playback options of `VisualEffectBehaviour` (delay, loops, yoyo, unscaled time, `OnComplete`). They are additive and can be stacked on the same Transform. When an effect is selected, the Inspector shows **Play** / **Stop** buttons that preview it, in Edit Mode too (the object is restored when the preview ends). See [Docs/Effects.md](Docs/Effects.md).
+
 UI transitions (`TransitionSO`, `UIManager`) are documented in [Docs/UISystem.md](Docs/UISystem.md).
+
+### UGUI module (`MyUnityPackage.VisualEffect.UGUI`)
+
+| Component | Purpose |
+|-----------|---------|
+| `UIButtonFeedback` | Smooth hover / pressed scale feedback for a button (unscaled time), with an optional effect played on click. Respects `Selectable.interactable`. |
+
+This module requires `com.unity.ugui`, which the package declares as a dependency.
 
 ### DOTween module (`MyUnityPackage.VisualEffect.DOTween`)
 
