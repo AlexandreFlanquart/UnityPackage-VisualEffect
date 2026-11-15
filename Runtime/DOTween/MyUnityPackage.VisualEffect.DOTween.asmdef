@@ -2,8 +2,7 @@
   "name": "MyUnityPackage.VisualEffect.DOTween",
   "rootNamespace": "MyUnityPackage.VisualEffect",
   "references": [
-    "MyUnityPackage.VisualEffect.Core",
-    "DOTween",
+    "MyUnityPackage.VisualEffect",
     "DOTween.Modules"
   ],
   "includePlatforms": [],
@@ -12,6 +11,7 @@
   "overrideReferences": false,
   "precompiledReferences": [],
   "autoReferenced": true,
-  "defineConstraints": [ "DOTWEEN_PRESENT" ],
+  "defineConstraints": [ "MUP_DOTWEEN" ],
+  "versionDefines": [],
   "noEngineReferences": false
 }

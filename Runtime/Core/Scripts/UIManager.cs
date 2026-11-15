@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using MyUnityPackage.Toolkit;
 
@@ -7,115 +8,116 @@ namespace MyUnityPackage.VisualEffect
 {
     public static class UIManager
     {
-        // Stores the mapping between UI component types and their instances (e.g., Canvas, custom UI scripts)
-        private static Dictionary<Type, UnityEngine.Object> canvasUI = new Dictionary<Type, UnityEngine.Object>(); // store type and component
-        // Stores all loaded transitions by name for quick access
-        private static Dictionary<string, TransitionSO> transitions = new Dictionary<string, TransitionSO>();
+        private const string TransitionsResourcesPath = "Transitions";
 
-        // Static constructor: called once when the class is first accessed
-        static UIManager()
+        // Maps a UI component type to its registered instance (e.g. Canvas, custom UI scripts)
+        private static readonly Dictionary<Type, UnityEngine.Object> canvasUI = new Dictionary<Type, UnityEngine.Object>();
+
+        // Transitions by name, loaded on first use from Resources/Transitions
+        private static Dictionary<string, TransitionSO> transitions;
+
+        // Static state survives Play Mode sessions when Domain Reload is disabled: reset it explicitly
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStaticState()
         {
-            // Initialize transitions dictionary
-            transitions = new Dictionary<string, TransitionSO>();
+            canvasUI.Clear();
+            transitions = null;
+        }
 
-            // Load all TransitionSO assets from Resources/Transitions folder
-            TransitionSO[] loadedTransitions = Resources.LoadAll<TransitionSO>("Transitions");
-
-            // Add each transition to the dictionary using its transitionName as the key
-            foreach (TransitionSO transition in loadedTransitions)
+        private static Dictionary<string, TransitionSO> Transitions
+        {
+            get
             {
-                if (transition != null)
+                if (transitions != null) return transitions;
+
+                transitions = new Dictionary<string, TransitionSO>();
+
+                foreach (TransitionSO transition in Resources.LoadAll<TransitionSO>(TransitionsResourcesPath))
                 {
-                    transitions[transition.transitionName] = transition;
+                    if (transition == null) continue;
+
+                    if (string.IsNullOrEmpty(transition.transitionName))
+                    {
+                        MUPLogger.Warning("Transition asset '" + transition.name + "' has an empty transition name and was ignored");
+                        continue;
+                    }
+
+                    if (transitions.ContainsKey(transition.transitionName))
+                    {
+                        MUPLogger.Warning("Duplicate transition name '" + transition.transitionName + "': asset '" + transition.name + "' was ignored");
+                        continue;
+                    }
+
+                    transitions.Add(transition.transitionName, transition);
                 }
+
+                return transitions;
             }
         }
 
         // Register a UI component of type T from the given GameObject
         public static void AddCanvasUI<T>(GameObject go) where T : UnityEngine.Object
         {
-            //Init the dictionary
-            if (canvasUI == null)
-                canvasUI = new Dictionary<Type, UnityEngine.Object>();
+            if (go == null) throw new ArgumentNullException(nameof(go));
 
-            try
+            // Already registered and still alive: keep the existing one
+            if (canvasUI.TryGetValue(typeof(T), out UnityEngine.Object existing) && existing != null)
             {
-                //Check if the key exist in the dictionary
-                if (canvasUI.ContainsKey(typeof(T)))
-                {
-                    T cui = (T)canvasUI[typeof(T)];
-                    if (cui == null) //The key exist but reference object doesn't exist anymore
-                    {
-                        canvasUI.Remove(typeof(T)); //Remove this key from the dictonary
-                        canvasUI.Add(typeof(T), (UnityEngine.Object)go.GetComponent<T>());
-                    }
-                }
-                else
-                {
-                    canvasUI.Add(typeof(T), (UnityEngine.Object)go.GetComponent<T>());
-                }
+                MUPLogger.Warning("Canvas UI " + typeof(T).Name + " is already registered");
+                return;
             }
-            catch
+
+            T component = go.GetComponent<T>();
+            if (component == null)
             {
-                throw new System.NotImplementedException("The requested service is already referenced");
+                MUPLogger.Warning("Can't register canvas UI: no " + typeof(T).Name + " component on " + go.name);
+                return;
             }
+
+            // Indexer also replaces an entry whose object has been destroyed
+            canvasUI[typeof(T)] = component;
         }
 
-        // Retrieve a registered UI component of type T
+        // Retrieve a registered UI component of type T (null if not registered or destroyed)
         public static T GetCanvasUI<T>() where T : UnityEngine.Object
         {
-            //Init the dictionary
-            if (canvasUI == null)
-                canvasUI = new Dictionary<Type, UnityEngine.Object>();
+            if (!canvasUI.TryGetValue(typeof(T), out UnityEngine.Object registered))
+            {
+                MUPLogger.Warning("Can't find requested canvas UI " + typeof(T).Name);
+                return null;
+            }
 
-            try
+            if (registered == null)
             {
-                //Check if the key exist in the dictionary
-                if (canvasUI.ContainsKey(typeof(T)))
-                {
-                    T cui = (T)canvasUI[typeof(T)];
-                    if (cui != null) //If Key exist and the object it reference to still exist
-                    {
-                        return cui;
-                    }
-                    else //The key exist but reference object doesn't exist anymore
-                    {
-                        canvasUI.Remove(typeof(T)); //Remove this key from the dictonary
-                        return null;
-                    }
-                }
-                else
-                {
-                    MUPLogger.Warning("Can't find requested canvas UI");
-                    return null;
-                }
+                // The key exists but the object it references has been destroyed
+                canvasUI.Remove(typeof(T));
+                return null;
             }
-            catch
-            {
-                throw new System.NotImplementedException("Can't find requested canvas UI");
-            }
+
+            return (T)registered;
         }
 
-        // Play a transition animation on the given canvas using a TransitionSO
-        private static void PlayTransition(GameObject canvas, TransitionSO transition)
-        {
-            MUPLogger.Info("PlayTransition : " + transition.transitionName + " at canvas : " + canvas.name);
-            // Play the transition
-            transition.PlayTransition(canvas);
-        }
-
-        // Play a transition by its name on the given canvas
+        // Play a transition by its name on the given canvas (fire and forget)
         public static void PlayTransitionByName(GameObject canvas, string transitionName)
         {
-            if (transitions.TryGetValue(transitionName, out TransitionSO transition))
-            {
-                PlayTransition(canvas, transition);
-            }
-            else
-            {
-                MUPLogger.Warning("Transition not found: " + transitionName + " check if this transition is in resource folder");
-            }
+            _ = LogExceptions(PlayTransitionByNameAsync(canvas, transitionName));
         }
+
+        // Play a transition by its name on the given canvas. The task completes when the transition is finished.
+        public static Task PlayTransitionByNameAsync(GameObject canvas, string transitionName)
+        {
+            if (canvas == null) throw new ArgumentNullException(nameof(canvas));
+
+            if (string.IsNullOrEmpty(transitionName) || !Transitions.TryGetValue(transitionName, out TransitionSO transition))
+            {
+                MUPLogger.Warning("Transition not found: " + transitionName + " check if this transition is in a Resources/" + TransitionsResourcesPath + " folder");
+                return Task.CompletedTask;
+            }
+
+            MUPLogger.Info("PlayTransition : " + transition.transitionName + " at canvas : " + canvas.name);
+            return transition.PlayTransition(canvas);
+        }
+
         // Play a transition by triggering an Animator parameter on the given canvas
         public static void PlayTransitionByTrigger(GameObject canvas, Animator animator, string triggerName)
         {
@@ -125,9 +127,21 @@ namespace MyUnityPackage.VisualEffect
             }
             else
             {
-                MUPLogger.Warning("Animator not found: " + canvas.name);
+                MUPLogger.Warning("Animator not found: " + (canvas != null ? canvas.name : "null"));
             }
         }
-       
+
+        // Surfaces exceptions of fire-and-forget transitions instead of losing them in an unobserved Task
+        private static async Task LogExceptions(Task task)
+        {
+            try
+            {
+                await task;
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+        }
     }
 }

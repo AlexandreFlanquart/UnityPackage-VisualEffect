@@ -1,22 +1,14 @@
-using System.Threading.Tasks;
 using UnityEngine;
 
-namespace MyUnityPackage.Toolkit
+namespace MyUnityPackage.VisualEffect
 {
     /// <summary>
-    /// Custom animation fade transition.
+    /// Fade transition played from an Animation Clip.
+    /// Override <see cref="AnimationTransitionSO.PlayTransition"/> to add logic before or after the animation
+    /// (the base call completes when the clip has finished playing).
     /// </summary>
-    [CreateAssetMenu(fileName = "AnimationFadeTransitionSO", menuName = "ScriptableObjects/AnimationFadeTransitionSO")]
+    [CreateAssetMenu(fileName = "AnimationFadeTransitionSO", menuName = "MyUnityPackage/Visual Effect/Transitions/Animation Fade")]
     public class AnimationFadeTransitionSO : AnimationTransitionSO
     {
-        public override Task PlayTransition(GameObject target)
-        {
-            MUPLogger.Info("Play animation TransitionTestSO");
-            base.PlayTransition(target);
-            MUPLogger.Info("TransitionTestSO finished");
-            // Add custom logic
-            // For example, wait for the animation to finish
-            return Task.CompletedTask;
-        }
     }
 }

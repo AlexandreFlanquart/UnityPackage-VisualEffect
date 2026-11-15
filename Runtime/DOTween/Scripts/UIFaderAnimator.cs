@@ -1,148 +1,144 @@
-using UnityEngine;
 using DG.Tweening;
+using UnityEngine;
 
-/// <summary>
-/// Responsabilité Unique : Gère l'animation de Fade (transparence) et l'interactivité.
-/// </summary>
-[RequireComponent(typeof(CanvasGroup))]
-public class UIFaderAnimator : MonoBehaviour
+namespace MyUnityPackage.VisualEffect
 {
-    // Nouvelle énumération pour définir le type de boucle (uniquement In, Out, ou les deux)
-    public enum LoopMode { None, FadeIn, FadeOut, BothInOut }
-
-    [Header("Fade Settings")]
-    public float duration = 0.25f;
-    public Ease easeIn = Ease.OutQuad; // J'ai mis OutQuad par défaut pour les alertes rapides
-    public Ease easeOut = Ease.Linear;
-    
-    [Header("Loop Settings")]
-    [Tooltip("Définit si et comment l'animation doit boucler.")]
-    public LoopMode loopType = LoopMode.None;
-    [Tooltip("Nombre de boucles (-1 pour infini).")]
-    public int loopCount = -1;
-    [Tooltip("Type de boucle DOTween (Yoyo est souvent le meilleur pour les boucles).")]
-    public LoopType dotweenLoopType = LoopType.Yoyo; 
-
-    [Header("Options de Démarrage Indépendant")]
-    [Tooltip("L'objet commence invisible et Fade In au démarrage.")]
-    public bool startOnAwake = false; 
-    public float startDelay = 0.1f;
-
-    private CanvasGroup canvasGroup;
-    private Tween currentTween;
-
-    void Awake()
-    {
-        canvasGroup = GetComponent<CanvasGroup>();
-        
-        // Initialisation de l'état
-        canvasGroup.alpha = startOnAwake ? 0f : 1f; 
-        SetInteractable(!startOnAwake); 
-
-        // Gestion du démarrage
-        if (startOnAwake)
-        {
-            if (loopType == LoopMode.None)
-            {
-                FadeIn(startDelay);
-            }
-            else
-            {
-                StartLooping(startDelay);
-            }
-        }
-    }
-
     /// <summary>
-    /// Démarre une animation ou une boucle complète selon le LoopMode sélectionné.
+    /// Responsabilité unique : gère l'animation de fade (transparence) et l'interactivité d'un CanvasGroup.
     /// </summary>
-    public void StartLooping(float delay = 0f)
+    [AddComponentMenu("MyUnityPackage/Visual Effect/UI Fader Animator (DOTween)")]
+    [RequireComponent(typeof(CanvasGroup))]
+    public class UIFaderAnimator : MonoBehaviour
     {
-        // Si aucune boucle n'est définie, on fait un simple Fade In
-        if (loopType == LoopMode.None)
+        // Valeurs explicites : l'enum est sérialisée par valeur, 1 et 2 étaient d'anciens modes sans effet visible.
+        public enum LoopMode
         {
-            FadeIn(delay);
-            return;
+            None = 0,
+            BothInOut = 3
         }
 
-        // 1. On s'assure d'arrêter tout ce qui est en cours
-        currentTween.Kill(true);
+        [Header("Fade Settings")]
+        public float duration = 0.25f;
+        public Ease easeIn = Ease.OutQuad;
+        public Ease easeOut = Ease.Linear;
+        [Tooltip("Ignore Time.timeScale : le fade continue quand le jeu est en pause.")]
+        public bool useUnscaledTime = true;
 
-        // 2. Création de la séquence de boucle
-        Sequence loopSequence = DOTween.Sequence()
-            .SetDelay(delay);
+        [Header("Loop Settings")]
+        [Tooltip("None : simple fade in. BothInOut : clignotement (apparition puis disparition).")]
+        public LoopMode loopType = LoopMode.None;
+        [Tooltip("Nombre de boucles (-1 pour infini).")]
+        public int loopCount = -1;
+        [Tooltip("Type de boucle DOTween.")]
+        public LoopType dotweenLoopType = LoopType.Yoyo;
 
-        // 3. Définition des étapes dans la boucle
-        if (loopType == LoopMode.FadeIn)
+        [Header("Options de Démarrage Indépendant")]
+        [Tooltip("L'objet commence invisible et joue son animation à chaque activation.")]
+        public bool startOnAwake = false;
+        public float startDelay = 0.1f;
+
+        private CanvasGroup canvasGroup;
+        private Tween currentTween;
+
+        private void Awake()
         {
-            // Boucle : Opaque -> Opaque (utile si on veut juste répéter le FadeIn pour rien)
-            loopSequence.Append(canvasGroup.DOFade(1f, duration).SetEase(easeIn));
+            canvasGroup = GetComponent<CanvasGroup>();
+
+            if (!startOnAwake)
+            {
+                canvasGroup.alpha = 1f;
+                SetInteractable(true);
+            }
         }
-        else if (loopType == LoopMode.FadeOut)
-        {
-            // Boucle : Transparent -> Transparent 
-            loopSequence.Append(canvasGroup.DOFade(0f, duration).SetEase(easeOut));
-        }
-        else if (loopType == LoopMode.BothInOut)
-        {
-            // Boucle : Apparition -> Disparition (Clignotement)
-            // L'objet doit commencer invisible pour que le FadeIn soit la première étape.
-            canvasGroup.alpha = 0f; 
-            SetInteractable(false); // Pas d'interactivité pendant le clignotement
 
-            loopSequence
+        private void OnEnable()
+        {
+            if (!startOnAwake) return;
+
+            canvasGroup.alpha = 0f;
+            SetInteractable(false);
+            StartLooping(startDelay);
+        }
+
+        /// <summary>
+        /// Démarre un fade in simple ou un clignotement selon le LoopMode sélectionné.
+        /// </summary>
+        public void StartLooping(float delay = 0f)
+        {
+            if (loopType != LoopMode.BothInOut)
+            {
+                FadeIn(delay);
+                return;
+            }
+
+            KillCurrentTween();
+
+            // Clignotement : l'objet part invisible et n'est jamais interactif
+            canvasGroup.alpha = 0f;
+            SetInteractable(false);
+
+            Sequence loopSequence = DOTween.Sequence()
                 .Append(canvasGroup.DOFade(1f, duration).SetEase(easeIn))
-                .Append(canvasGroup.DOFade(0f, duration).SetEase(easeOut));
+                .Append(canvasGroup.DOFade(0f, duration).SetEase(easeOut))
+                .SetDelay(delay)
+                .SetLoops(loopCount, dotweenLoopType);
+
+            currentTween = Configure(loopSequence);
         }
 
-        // 4. Application des paramètres de boucle et lancement
-        currentTween = loopSequence
-            .SetLoops(loopCount, dotweenLoopType)
-            .SetLink(gameObject) // Optimisation : lie le tween à l'objet
-            .OnComplete(() => {
-                // Rendre interactif seulement si l'animation s'arrête à l'état opaque
-                if (loopType == LoopMode.FadeIn || loopType == LoopMode.None)
-                {
-                    SetInteractable(true);
-                }
-            })
-            .Play();
-    }
-    
-    // --- Fonctions d'animation simples (utiles pour un appel direct sans boucle) ---
+        public Tween FadeIn(float delay = 0f)
+        {
+            KillCurrentTween();
+            SetInteractable(false);
 
-    public Tween FadeIn(float delay = 0f)
-    {    
-        currentTween.Kill(true);
-        SetInteractable(false);
-        
-        return canvasGroup.DOFade(1f, duration) 
-            .SetEase(easeIn) 
-            .SetDelay(delay)
-            .OnComplete(() => SetInteractable(true));
-    }
+            currentTween = Configure(canvasGroup.DOFade(1f, duration)
+                .SetEase(easeIn)
+                .SetDelay(delay)
+                .OnComplete(() => SetInteractable(true)));
 
-    public Tween FadeOut(float delay = 0f)
-    {    
-        currentTween.Kill(true);
-        SetInteractable(false);
+            return currentTween;
+        }
 
-        return canvasGroup.DOFade(0f, duration)
-            .SetEase(easeOut) 
-            .SetDelay(delay);
-    }
-    
-    // --- Fonctions Utilitaires ---
-    
-    // Fonction utilitaire pour gérer l'interactivité
-    private void SetInteractable(bool isInteractable)
-    {
-        canvasGroup.interactable = isInteractable;
-        canvasGroup.blocksRaycasts = isInteractable;
-    }
-    
-    void OnDisable()
-    {
-        currentTween.Kill(false);
+        public Tween FadeOut(float delay = 0f)
+        {
+            KillCurrentTween();
+            SetInteractable(false);
+
+            currentTween = Configure(canvasGroup.DOFade(0f, duration)
+                .SetEase(easeOut)
+                .SetDelay(delay));
+
+            return currentTween;
+        }
+
+        // Réglages communs : horloge, et tween détruit avec le GameObject
+        private Tween Configure(Tween tween)
+        {
+            return tween
+                .SetUpdate(useUnscaledTime)
+                .SetLink(gameObject);
+        }
+
+        // Tue le tween sans le compléter : pas de saut d'alpha ni de OnComplete parasite
+        private void KillCurrentTween()
+        {
+            if (currentTween != null && currentTween.IsActive())
+            {
+                currentTween.Kill(false);
+            }
+
+            currentTween = null;
+        }
+
+        private void SetInteractable(bool isInteractable)
+        {
+            canvasGroup.interactable = isInteractable;
+            canvasGroup.blocksRaycasts = isInteractable;
+        }
+
+        private void OnDisable()
+        {
+            KillCurrentTween();
+        }
     }
 }

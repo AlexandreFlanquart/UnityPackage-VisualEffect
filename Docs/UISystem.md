@@ -1,5 +1,7 @@
 ## 🔄 Système de Transitions
 
+Tous les types sont dans le namespace `MyUnityPackage.VisualEffect`.
+
 ### Architecture des Transitions
 
 ```
@@ -10,19 +12,24 @@ TransitionSO (Base)
     └── AnimationFadeTransitionSO (Fade par animation)
 ```
 
-### [`TransitionSO.cs`](../Runtime/Scripts/ScriptableObjects/Transitions/TransitionSO.cs)
+### [`TransitionSO.cs`](../Runtime/Core/Scripts/ScriptableObjects/Transitions/TransitionSO.cs)
 Classe de base pour toutes les transitions.
 
 ```csharp
 public abstract class TransitionSO : ScriptableObject
 {
-    public string transitionName { get; private set; }
-    
+    public string transitionName { get; }
+
+    // La Task se termine à la fin de la transition
     public abstract Task PlayTransition(GameObject target);
+
+    // Appelle onProgress (0..1) à chaque frame pendant duration secondes.
+    // Retourne false si la cible est détruite ou si on quitte le Play Mode.
+    protected static Task<bool> RunOverTime(GameObject target, float duration, bool unscaledTime, Action<float> onProgress = null);
 }
 ```
 
-### [`CustomTransitionSO.cs`](../Runtime/Scripts/ScriptableObjects/Transitions/CustomTransitionSO.cs)
+### [`CustomTransitionSO.cs`](../Runtime/Core/Scripts/ScriptableObjects/Transitions/CustomTransitionSO.cs)
 Base pour les transitions personnalisées par script.
 
 ```csharp
@@ -32,23 +39,32 @@ public abstract class CustomTransitionSO : TransitionSO
 }
 ```
 
-### [`CustomFadeTransitionSO.cs`](../Runtime/Scripts/ScriptableObjects/Transitions/CustomFadeTransitionSO.cs)
-Exemple de classe custom à creer pour faire une transition personnalisée (effet de fondu).
+### [`CustomFadeTransitionSO.cs`](../Runtime/Core/Scripts/ScriptableObjects/Transitions/CustomFadeTransitionSO.cs)
+Fade par script sur un `CanvasGroup` (ajouté à la cible s'il manque).
+
+| Champ | Rôle |
+|-------|------|
+| `fadeDuration` | Durée d'un fondu, en secondes |
+| `mode` | `OutThenIn` (défaut), `In` ou `Out` |
+| `useUnscaledTime` | Ignore `Time.timeScale` (défaut : `true`, le fondu fonctionne en pause) |
+
+Exemple de transition personnalisée :
 
 ```csharp
-[CreateAssetMenu(fileName = "FadeTransitionSO", menuName = "ScriptableObjects/CustomFadeTransitionSO")]
-public class CustomFadeTransitionSO : CustomTransitionSO
+[CreateAssetMenu(menuName = "MyUnityPackage/Visual Effect/Transitions/Scale In")]
+public class ScaleInTransitionSO : CustomTransitionSO
 {
-    public float fadeDuration = 1f; // Durée du fondu
-    
-    protected override async Task OnCustomTransition(GameObject target)
+    public float duration = 0.3f;
+
+    protected override Task OnCustomTransition(GameObject target)
     {
-        // TO DO
+        return RunOverTime(target, duration, unscaledTime: true,
+            progress => target.transform.localScale = Vector3.one * progress);
     }
 }
 ```
 
-### [`AnimationTransitionSO.cs`](../Runtime/Scripts/ScriptableObjects/Transitions/AnimationTransitionSO.cs)
+### [`AnimationTransitionSO.cs`](../Runtime/Core/Scripts/ScriptableObjects/Transitions/AnimationTransitionSO.cs)
 Base pour les transitions par animation Unity.
 
 ```csharp
@@ -56,36 +72,30 @@ public abstract class AnimationTransitionSO : TransitionSO
 {
     [SerializeField] protected AnimationClip _animationClip;
     [SerializeField] protected RuntimeAnimatorController _animatorController;
+    [SerializeField] protected string _stateName = "Default";
 }
 ```
 
 **Fonctionnement :**
-- Crée un `AnimatorOverrideController`
-- Remplace l'animation par défaut
-- Lance l'animation sur le GameObject cible
+- Crée un `AnimatorOverrideController` (une seule fois par asset, partagé entre les cibles)
+- Remplace le premier clip du controller par `_animationClip`
+- Joue l'état `_stateName` (layer 0) sur l'`Animator` de la cible, ajouté s'il manque
+- La `Task` se termine à la fin du clip
 
-### [`AnimationFadeTransitionSO.cs`](../Runtime/Scripts/ScriptableObjects/Transitions/AnimationFadeTransitionSO.cs)
-Exemple de classe custom à creer pour une transition par animation Unity (effet de fondu).
+### [`AnimationFadeTransitionSO.cs`](../Runtime/Core/Scripts/ScriptableObjects/Transitions/AnimationFadeTransitionSO.cs)
+Transition par animation prête à l'emploi. Surchargez `PlayTransition` pour ajouter de la logique avant ou après l'animation :
 
 ```csharp
-[CreateAssetMenu(fileName = "AnimationFadeTransitionSO", menuName = "ScriptableObjects/AnimationFadeTransitionSO")]
-public class AnimationFadeTransitionSO : AnimationTransitionSO
+public override async Task PlayTransition(GameObject target)
 {
-    public override Task PlayTransition(GameObject target)
-    {
-        MUPLogger.Info("Play animation TransitionTestSO");
-        base.PlayTransition(target);
-        MUPLogger.Info("TransitionTestSO finished");
-        // Add custom logic
-        // For example, wait for the animation to finish
-        return Task.CompletedTask;
-    }
+    await base.PlayTransition(target); // terminé quand le clip est fini
+    // logique après l'animation
 }
 ```
 
 ---
 
-## 🎮 [`UIManager.cs`](../Runtime/Scripts/Managers/UIManager.cs)
+## 🎮 [`UIManager.cs`](../Runtime/Core/Scripts/UIManager.cs)
 
 Gestionnaire statique pour l'UI et les transitions.
 
@@ -95,21 +105,24 @@ Gestionnaire statique pour l'UI et les transitions.
 // Enregistrer un canvas UI
 UIManager.AddCanvasUI<MainMenuUI>(gameObject);
 
-// Récupérer un canvas UI
+// Récupérer un canvas UI (null s'il n'est pas enregistré ou a été détruit)
 MainMenuUI mainMenu = UIManager.GetCanvasUI<MainMenuUI>();
 ```
 
 ### Gestion des Transitions
 
-**Chargement automatique :**
-- Toutes les transitions dans `Resources/Transitions/` sont chargées automatiquement
-- Utilise le `transitionName` comme clé
+**Chargement :**
+- Les transitions des dossiers `Resources/Transitions/` sont chargées à la première utilisation
+- Le `transitionName` sert de clé : il doit être renseigné et unique (sinon l'asset est ignoré avec un warning)
 
 **Utilisation :**
 
 ```csharp
-// Par nom de transition
+// Par nom de transition, sans attendre la fin
 UIManager.PlayTransitionByName(canvas, "FadeTransition");
+
+// Par nom de transition, en attendant la fin
+await UIManager.PlayTransitionByNameAsync(canvas, "FadeTransition");
 
 // Par trigger d'animator
 UIManager.PlayTransitionByTrigger(canvas, animator, "FadeIn");
@@ -119,11 +132,14 @@ UIManager.PlayTransitionByTrigger(canvas, animator, "FadeIn");
 
 ## 📁 Structure des Fichiers
 
+Dans le projet qui utilise le package :
+
 ```
-Resources/
-└── Transitions/
-    ├── FadeTransition.asset (CustomFadeTransitionSO)
-    ├── SlideTransition.asset (AnimationFadeTransitionSO)
+Assets/
+└── Resources/
+    └── Transitions/
+        ├── FadeTransition.asset (CustomFadeTransitionSO)
+        └── SlideTransition.asset (AnimationFadeTransitionSO)
 ```
 
 ---
@@ -132,15 +148,14 @@ Resources/
 
 ### 1. Créer un ScriptableObject de Transition
 
-**Pour une transition personnalisée :**
-1. Creez un Script scriptableObject qui hérite de AnimationTransitionSO ou CustomTransitionSO selon si vous utilisez un script ou une animation
-2. Creez votre SO → `Create` → `ScriptableObjects` → `[votreNomDeScriptableObject]`
-3. Placez-le dans `Resources/Transitions/`
-4. Configurez le dans l'Inspector ci necessaire
+1. Pour un fondu, utilisez directement `Create` → `MyUnityPackage` → `Visual Effect` → `Transitions`. Pour un autre effet, créez un script qui hérite de `CustomTransitionSO` (script) ou `AnimationTransitionSO` (animation).
+2. Placez l'asset dans `Resources/Transitions/`
+3. Renseignez son `Transition Name` dans l'Inspector
 
 ### 2. Configuration du Canvas
 
-**Setup minimal :**
+`CanvasHelper` et `UI_Base` ci-dessous viennent du package Toolkit, pas de ce package.
+
 1. Créez un GameObject avec un `Canvas`
 2. Ajoutez le composant `CanvasHelper` (ajoute automatiquement `CanvasGroup`)
 3. Créez un script qui hérite de `UI_Base`

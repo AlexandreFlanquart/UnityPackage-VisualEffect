@@ -2,9 +2,22 @@
   "name": "com.myunitypackage.visualeffect",
   "version": "1.0.0",
   "displayName": "UnityPackage-VisualEffect",
-  "description": "UnityPackage VisualEffect show multiple type of visual effects.",
+  "description": "Polish toolkit for Unity: lightweight visual effects for 3D objects, 2D objects and UI (float, move, rotate, fades, transitions).",
   "unity": "6000.0",
-  "dependencies": {},
+  "documentationUrl": "https://github.com/AlexandreFlanquart/UnityPackage-VisualEffect/blob/main/README.md",
+  "changelogUrl": "https://github.com/AlexandreFlanquart/UnityPackage-VisualEffect/blob/main/CHANGELOG.md",
+  "keywords": [
+    "polish",
+    "juice",
+    "visual effect",
+    "feedback",
+    "ui",
+    "transition"
+  ],
+  "dependencies": {
+    "com.unity.modules.animation": "1.0.0",
+    "com.unity.modules.ui": "1.0.0"
+  },
   "author": {
     "name": "Alexandre Flanquart"
   },
@@ -15,9 +28,9 @@
   ],
   "samples": [
     {
-      "displayName": "SampleScene",
-      "description": "Example usage",
-      "path": "Samples~"
+      "displayName": "Demo",
+      "description": "Spawns a few primitives animated with FloatObject, LinearMoveObject and RotateObject.",
+      "path": "Samples~/Demo"
     }
   ]
 }

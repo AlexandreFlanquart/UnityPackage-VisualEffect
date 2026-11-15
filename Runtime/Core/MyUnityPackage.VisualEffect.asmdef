@@ -1,6 +1,6 @@
 {
     "name": "MyUnityPackage.VisualEffect",
-    "rootNamespace": "",
+    "rootNamespace": "MyUnityPackage.VisualEffect",
     "references": [
         "GUID:b54b67bb94f21ea4aa2feee402050eb2"
     ],
