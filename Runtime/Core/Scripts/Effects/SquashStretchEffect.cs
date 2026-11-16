@@ -47,7 +47,7 @@ namespace MyUnityPackage.VisualEffect
             float wave = Mathf.Sin(progress * Mathf.PI * 2f * _oscillations) * (1f - progress) * (1f - progress);
 
             // Clamped so a big amount can never flip or collapse the scale
-            float along = Mathf.Max(0.05f, 1f + _amount * wave);
+            float along = Mathf.Max(0.05f, 1f + _amount * wave * VisualEffectSettings.MotionScale);
 
             // across^2 * along = 1: the volume stays constant
             float across = 1f / Mathf.Sqrt(along);

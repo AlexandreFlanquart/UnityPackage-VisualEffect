@@ -52,7 +52,7 @@ namespace MyUnityPackage.VisualEffect
         private void Update()
         {
             float t = (_useUnscaledTime ? Time.unscaledTime : Time.time) + _phase;
-            Vector3 offset = _axis.normalized * (Mathf.Sin(t * Mathf.PI * 2f * _frequency) * _amplitude);
+            Vector3 offset = _axis.normalized * (Mathf.Sin(t * Mathf.PI * 2f * _frequency) * _amplitude * VisualEffectSettings.MotionScale);
             _offset.Apply(transform, offset, _localSpace);
         }
 

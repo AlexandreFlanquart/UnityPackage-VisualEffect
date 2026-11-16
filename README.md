@@ -95,6 +95,25 @@ DOTween and Feel are Asset Store assets, so the Package Manager cannot detect th
 - Run it by hand: **Tools > MyUnityPackage > Visual Effect > Sync Optional Modules Now** (do it after switching build target).
 - Turn it off: untick **Auto Sync Optional Modules** in the same menu, then manage the defines yourself.
 
+## Accessibility
+
+`VisualEffectSettings` holds two global multipliers to wire to your options menu:
+
+```csharp
+VisualEffectSettings.MotionScale = 0.3f; // "reduce motion": punch, pulse, shake, squash, float, linear move
+VisualEffectSettings.FlashScale = 0f;    // "reduce flashing": HitFlashEffect
+```
+
+Only decorative effects are attenuated: `ScaleEffect`, fades and dissolves always reach their end state. Values reset to 1 at the start of each session, so apply the player's saved preference at startup.
+
+## Tests
+
+Edit Mode tests live in `Tests/Editor`. To run them from a project that uses the package, add it to `testables` in `Packages/manifest.json`, then open **Window > General > Test Runner**:
+
+```json
+"testables": ["com.myunitypackage.visualeffect"]
+```
+
 ## Samples
 
 Import **Demo** from the package's **Samples** tab in the Package Manager, then follow its README.

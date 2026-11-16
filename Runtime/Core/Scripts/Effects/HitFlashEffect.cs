@@ -10,6 +10,9 @@ namespace MyUnityPackage.VisualEffect
     [AddComponentMenu("MyUnityPackage/Visual Effect/Hit Flash Effect")]
     public class HitFlashEffect : MaterialFloatEffect
     {
+        // A flash is decorative: it follows the "reduce flashing" setting
+        protected override float IntensityScale => VisualEffectSettings.FlashScale;
+
         public HitFlashEffect()
         {
             SetPlaybackDefaults(duration: 0.15f);

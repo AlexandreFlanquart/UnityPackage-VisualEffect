@@ -47,6 +47,9 @@ namespace MyUnityPackage.VisualEffect
             _resolved = null;
         }
 
+        /// <summary>Multiplier of the animated range, for presets that follow an accessibility setting. 1 = unchanged.</summary>
+        protected virtual float IntensityScale => 1f;
+
         /// <summary>Lets a preset subclass change the default property and range from its constructor.</summary>
         protected void SetPropertyDefaults(string propertyName, float from, float to, Ease ease)
         {
@@ -72,6 +75,9 @@ namespace MyUnityPackage.VisualEffect
             if (_resolved == null || string.IsNullOrEmpty(_propertyName)) return;
 
             float value = Mathf.LerpUnclamped(_from, _to, _ease.Evaluate(progress));
+
+            // Attenuation keeps the end value intact: only the distance travelled from it is reduced
+            value = _to + (value - _to) * IntensityScale;
             Write(value, false);
         }
 

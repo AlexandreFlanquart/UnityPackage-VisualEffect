@@ -99,7 +99,7 @@ namespace MyUnityPackage.VisualEffect
 
             // Floating
             float perlin = (Mathf.PerlinNoise(_noiseSeed, t * _noiseSpeed) - 0.5f) * 2f;
-            float amp = _floatAmplitude * (1f + perlin * _noise);
+            float amp = _floatAmplitude * (1f + perlin * _noise) * VisualEffectSettings.MotionScale;
             float sine = Mathf.Sin((t + _phase) * Mathf.PI * 2f * _floatFrequency);
             _offset.Apply(transform, _floatAxis.normalized * (sine * amp), _localSpace);
         }

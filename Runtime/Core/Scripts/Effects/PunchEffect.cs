@@ -34,7 +34,7 @@ namespace MyUnityPackage.VisualEffect
             float wave = Mathf.Sin(progress * Mathf.PI * 2f * _oscillations);
             float falloff = (1f - progress) * (1f - progress);
 
-            _offset.Apply(Target, _channel, _strength * (wave * falloff));
+            _offset.Apply(Target, _channel, _strength * (wave * falloff * VisualEffectSettings.MotionScale));
         }
 
         protected override void ResetEffect()

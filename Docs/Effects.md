@@ -81,6 +81,10 @@ Chaque effet affiche les boutons **Play** et **Stop**. Hors Play Mode, la prévi
 
 `UIButtonFeedback` (assembly `MyUnityPackage.VisualEffect.UGUI`) donne un retour de survol et d'appui à un bouton (échelle lissée, temps non affecté par `timeScale`) et peut jouer un effet au clic (`_clickEffect`). Il ignore le survol et l'appui si le `Selectable` n'est pas interactable.
 
+### Accessibilité
+
+`VisualEffectSettings.MotionScale` (0 à 1) atténue l'amplitude des effets décoratifs : `PunchEffect`, `PulseEffect`, `ShakeEffect`, `SquashStretchEffect`, `FloatObject`, `LinearMoveObject`. `VisualEffectSettings.FlashScale` atténue `HitFlashEffect`. Les effets porteurs de sens (`ScaleEffect`, fondus, dissolve) atteignent toujours leur état final. Les deux valeurs reviennent à 1 au début de chaque session : appliquez la préférence sauvegardée du joueur au démarrage.
+
 ### Module Feel
 
 Avec [Feel](https://feel.moremountains.com) installé, le feedback `MMF_VisualEffect` (**Add new feedback > MyUnityPackage > Visual Effect**) joue ou arrête un effet du package depuis un `MMF_Player`. On peut ainsi enchaîner un `HitFlashEffect`, un son et un freeze frame de Feel dans la même séquence. Le feedback annonce au player la durée totale de l'effet (délai et boucles compris).

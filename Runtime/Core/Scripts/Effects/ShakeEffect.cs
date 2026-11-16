@@ -46,7 +46,7 @@ namespace MyUnityPackage.VisualEffect
             }
 
             float time = progress * Duration * _frequency;
-            float falloff = 1f - progress;
+            float falloff = (1f - progress) * VisualEffectSettings.MotionScale;
 
             // PerlinNoise is in [0, 1]: remap to [-1, 1]; a different row per axis decorrelates them
             Vector3 noise = new Vector3(

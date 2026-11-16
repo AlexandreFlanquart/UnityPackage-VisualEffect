@@ -32,7 +32,7 @@ namespace MyUnityPackage.VisualEffect
         protected override void Evaluate(float progress)
         {
             // One full sine period per loop, so consecutive loops join without a jump
-            _offset.Apply(Target, _channel, _amplitude * Mathf.Sin(progress * Mathf.PI * 2f));
+            _offset.Apply(Target, _channel, _amplitude * (Mathf.Sin(progress * Mathf.PI * 2f) * VisualEffectSettings.MotionScale));
         }
 
         protected override void ResetEffect()

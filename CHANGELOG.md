@@ -24,6 +24,8 @@
 - Cinemachine module: `CameraImpulseEffect` (compiled when `com.unity.cinemachine` 3.0+ is installed).
 - Automatic `MUP_DOTWEEN` / `MUP_FEEL` scripting defines when DOTween or Feel is detected, with a Tools menu to sync by hand or turn it off.
 - `VisualEffectBehaviour.TotalDuration`.
+- `VisualEffectSettings`: global `MotionScale` and `FlashScale` accessibility multipliers.
+- Edit Mode tests for easing and effect playback.
 - `CustomFadeTransitionSO`: `mode` (out then in, in, out) and `useUnscaledTime`.
 - `AnimationTransitionSO`: configurable state name.
 - `UIManager.PlayTransitionByNameAsync`, to await the end of a transition.
