@@ -23,6 +23,8 @@ Polish toolkit for Unity: lightweight visual effects for 3D objects, 2D objects 
 
 ## Content
 
+Project structure (folders, assemblies, optional modules, conventions): [Docs/Architecture.md](Docs/Architecture.md).
+
 All types live in the `MyUnityPackage.VisualEffect` namespace. Components are under **Add Component > MyUnityPackage > Visual Effect**.
 
 ### Core (`MyUnityPackage.VisualEffect`)

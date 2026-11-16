@@ -1,8 +1,22 @@
 # Demo
 
-1. Import this sample from **Window > Package Manager > UnityPackage-VisualEffect > Samples**.
-2. In any scene with a camera looking at the origin, create an empty GameObject and add the `VisualEffectDemo` component.
-3. Press Play: a sphere (`FloatObject`), a cube (`LinearMoveObject`) and a capsule (`RotateObject`) are spawned and animated.
-4. A second row (further along Z) shows the effects: `PulseEffect`, then `PunchEffect`, `ShakeEffect`, `SquashStretchEffect` and `ScaleEffect`, the last four looping so you can watch them.
+The demo is built by a script, so it works in any project without scene or asset to maintain.
 
-Select a spawned object during Play Mode to tweak its effect in the Inspector.
+1. Import this sample from **Window > Package Manager > UnityPackage-VisualEffect > Samples**.
+2. Create a new scene (**File > New Scene**, Basic template: it has a camera and a light).
+3. Create an empty GameObject at the origin and add the `VisualEffectDemo` component.
+4. Press Play.
+
+| Where | Effects |
+|-------|---------|
+| Front row | `FloatObject`, `LinearMoveObject`, `RotateObject` |
+| Middle row | `PulseEffect`, `PunchEffect`, `ShakeEffect`, `SquashStretchEffect`, `ScaleEffect` (one-shots are looped) |
+| Back row | `HitFlashEffect` and `DissolveEffect` on sprites using the `Sprite Effects` shader |
+| Bottom of the screen | A button with `UIButtonFeedback` (hover, press) and a `PunchEffect` on click; a panel with `CanvasGroupFadeEffect` |
+
+Each object is labelled with the name of its effect. Select one during Play Mode to tweak it in the Inspector.
+
+Notes:
+- The button needs an EventSystem. The demo creates one with the legacy Input Manager; with the Input System package only, add **GameObject > UI > Event System** to the scene.
+- Not shown, because they need an optional asset: `CameraImpulseEffect` (Cinemachine), `MMF_VisualEffect` (Feel), `UIFaderAnimator` (DOTween).
+- UI transitions (`TransitionSO`) need assets in a `Resources/Transitions` folder: see `Docs/UISystem.md`.

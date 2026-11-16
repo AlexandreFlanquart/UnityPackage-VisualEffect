@@ -38,6 +38,7 @@ namespace MyUnityPackage.VisualEffect
         private float _velocity;
 
         public Transform Target { get => _target != null ? _target : transform; set => _target = value; }
+        public VisualEffectBehaviour ClickEffect { get => _clickEffect; set => _clickEffect = value; }
 
         private bool CanInteract => _selectable == null || _selectable.IsInteractable();
 

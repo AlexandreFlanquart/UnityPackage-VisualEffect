@@ -26,6 +26,7 @@
 - `VisualEffectBehaviour.TotalDuration`.
 - `VisualEffectSettings`: global `MotionScale` and `FlashScale` accessibility multipliers.
 - Edit Mode tests for easing and effect playback.
+- `Docs/Architecture.md` (project structure); the Demo sample now covers idle, transform, shader and UI effects.
 - `CustomFadeTransitionSO`: `mode` (out then in, in, out) and `useUnscaledTime`.
 - `AnimationTransitionSO`: configurable state name.
 - `UIManager.PlayTransitionByNameAsync`, to await the end of a transition.

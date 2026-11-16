@@ -31,7 +31,7 @@
   "samples": [
     {
       "displayName": "Demo",
-      "description": "Spawns a few primitives animated with FloatObject, LinearMoveObject and RotateObject.",
+      "description": "Builds a demo at runtime with every effect family: idle, transform, shader (sprites) and UI.",
       "path": "Samples~/Demo"
     }
   ]
