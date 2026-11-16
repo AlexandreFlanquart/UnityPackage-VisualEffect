@@ -6,6 +6,10 @@ using MyUnityPackage.Toolkit;
 
 namespace MyUnityPackage.VisualEffect
 {
+    /// <summary>
+    /// Static entry point for UI: keeps a registry of UI components by type (one instance per type) and
+    /// plays the transitions found in the Resources/Transitions folders, by name.
+    /// </summary>
     public static class UIManager
     {
         private const string TransitionsResourcesPath = "Transitions";
