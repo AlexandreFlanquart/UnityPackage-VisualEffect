@@ -1,0 +1,23 @@
+{
+    "name": "MyUnityPackage.VisualEffect.Cinemachine",
+    "rootNamespace": "MyUnityPackage.VisualEffect",
+    "references": [
+        "MyUnityPackage.VisualEffect",
+        "Unity.Cinemachine"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [ "MUP_CINEMACHINE" ],
+    "versionDefines": [
+        {
+            "name": "com.unity.cinemachine",
+            "expression": "3.0.0",
+            "define": "MUP_CINEMACHINE"
+        }
+    ],
+    "noEngineReferences": false
+}

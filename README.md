@@ -70,7 +70,30 @@ This assembly is only compiled when the `MUP_DOTWEEN` scripting define is set. T
 
 1. Install DOTween (Asset Store) and run its setup.
 2. In **Tools > Demigiant > DOTween Utility Panel**, click **Create ASMDEF** (creates the `DOTween.Modules` assembly this module references).
-3. Add `MUP_DOTWEEN` to **Project Settings > Player > Scripting Define Symbols**.
+3. `MUP_DOTWEEN` is then added automatically to the Scripting Define Symbols of the active build target (see *Optional module detection* below).
+
+### Feel module (`MyUnityPackage.VisualEffect.Feel`)
+
+| Feedback | Purpose |
+|----------|---------|
+| `MMF_VisualEffect` | Plays or stops any effect of this package from an `MMF_Player` (Add new feedback > MyUnityPackage > Visual Effect) |
+
+Requires [Feel](https://feel.moremountains.com) (Asset Store, one licence per seat, never commit it to a repository you deliver). The module is compiled when `MUP_FEEL` is defined, which happens automatically once Feel is imported.
+
+### Cinemachine module (`MyUnityPackage.VisualEffect.Cinemachine`)
+
+| Component | Purpose |
+|-----------|---------|
+| `CameraImpulseEffect` | Camera shake through a `CinemachineImpulseSource`, with the same `Play()` contract as the other effects |
+
+Compiled automatically when `com.unity.cinemachine` 3.0 or newer is installed. The Cinemachine Camera needs a `CinemachineImpulseListener`.
+
+### Optional module detection
+
+DOTween and Feel are Asset Store assets, so the Package Manager cannot detect them. An editor script looks for their assemblies (`DOTween.Modules`, `MoreMountains.Feedbacks`) each time scripts are reloaded and adds or removes `MUP_DOTWEEN` / `MUP_FEEL` for the **active build target**. This modifies `ProjectSettings/ProjectSettings.asset`.
+
+- Run it by hand: **Tools > MyUnityPackage > Visual Effect > Sync Optional Modules Now** (do it after switching build target).
+- Turn it off: untick **Auto Sync Optional Modules** in the same menu, then manage the defines yourself.
 
 ## Samples
 
@@ -79,6 +102,7 @@ Import **Demo** from the package's **Samples** tab in the Package Manager, then 
 ## Troubleshooting
 
 - **`MUPLogger` / `MyUnityPackage.Toolkit` not found**: the Toolkit package is not installed.
+- **Compile errors in the Feel or DOTween module after removing the asset**: remove `MUP_FEEL` / `MUP_DOTWEEN` from **Project Settings > Player > Scripting Define Symbols** (the automatic sync cannot run while the project does not compile).
 - **`UIFaderAnimator` not available**: `MUP_DOTWEEN` is not defined, or the DOTween ASMDEF has not been created.
 
 Report other issues on the [issue tracker](https://github.com/AlexandreFlanquart/UnityPackage-VisualEffect/issues).

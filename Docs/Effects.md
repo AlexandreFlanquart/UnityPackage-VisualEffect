@@ -81,6 +81,14 @@ Chaque effet affiche les boutons **Play** et **Stop**. Hors Play Mode, la prévi
 
 `UIButtonFeedback` (assembly `MyUnityPackage.VisualEffect.UGUI`) donne un retour de survol et d'appui à un bouton (échelle lissée, temps non affecté par `timeScale`) et peut jouer un effet au clic (`_clickEffect`). Il ignore le survol et l'appui si le `Selectable` n'est pas interactable.
 
+### Module Feel
+
+Avec [Feel](https://feel.moremountains.com) installé, le feedback `MMF_VisualEffect` (**Add new feedback > MyUnityPackage > Visual Effect**) joue ou arrête un effet du package depuis un `MMF_Player`. On peut ainsi enchaîner un `HitFlashEffect`, un son et un freeze frame de Feel dans la même séquence. Le feedback annonce au player la durée totale de l'effet (délai et boucles compris).
+
+### Module Cinemachine
+
+Avec Cinemachine 3 installé, `CameraImpulseEffect` déclenche une secousse de caméra via le `CinemachineImpulseSource` du même objet. La forme et la durée de la secousse se règlent sur l'Impulse Source ; la Cinemachine Camera doit porter un `CinemachineImpulseListener`. `Stop()` n'interrompt pas une secousse déjà envoyée : Cinemachine ne sait annuler que toutes les secousses à la fois.
+
 ### Créer son propre effet
 
 Hériter de `VisualEffectBehaviour` et implémenter `Evaluate` et `ResetEffect`. `TransformOffset` étant interne au package, un effet externe applique son résultat lui-même et doit pouvoir le retirer :

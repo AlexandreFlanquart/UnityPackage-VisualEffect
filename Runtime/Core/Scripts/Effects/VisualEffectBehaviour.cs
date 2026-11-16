@@ -52,6 +52,9 @@ namespace MyUnityPackage.VisualEffect
         public bool UseUnscaledTime { get => _useUnscaledTime; set => _useUnscaledTime = value; }
         public UnityEvent OnComplete => _onComplete;
 
+        /// <summary>Delay plus every loop, in seconds. Infinity when the effect loops forever.</summary>
+        public float TotalDuration => _loops < 0 ? float.PositiveInfinity : _delay + _duration * Mathf.Max(1, _loops);
+
         /// <summary>Applies the effect at <paramref name="progress"/> (0 = start of a loop, 1 = end).</summary>
         protected abstract void Evaluate(float progress);
 
